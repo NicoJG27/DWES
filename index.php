@@ -60,8 +60,15 @@ function leerMeta($ruta){
   return $meta;
 }
 
+/**
+ * Recolecta ejercicios:
+ *  - PHP directamente en unidadX/actY/: actN_M.php o actN_M--*.php
+ *  - Subcarpetas unidadX/actY/actN_M/ con actN_M.php o actN_M--*.php dentro
+ */
 function recogerMapa($patronUnidad, $patronAct, $ignorarArchivos){
   $mapa = [];
+  $ignorarLC = array_map('strtolower', $ignorarArchivos);
+
   foreach (scandir('.') as $u) {
     if ($u[0]==='.' || !is_dir($u)) continue;
     if (!preg_match($patronUnidad, $u, $mu)) continue;
@@ -72,14 +79,43 @@ function recogerMapa($patronUnidad, $patronAct, $ignorarArchivos){
       if (!preg_match($patronAct, $a, $ma)) continue;
       $numA = (int)$ma[1];
 
-      // Listar solo archivos actN_N.php
-      $files = array_filter(glob("$aDir/*.php") ?: [], function ($f) {
-        return preg_match('/^act\\d+_\\d+\\.php$/i', basename($f));
-      });
+      $files = [];
 
+      // 1) Ficheros PHP directamente en unidadX/actY/
+      foreach (glob("$aDir/*.php") ?: [] as $f) {
+        $base = basename($f);
+        if (in_array(strtolower($base), $ignorarLC, true)) continue;
+        if (preg_match('/^act\d+_\d+(?:--.*)?\.php$/i', $base)) {
+          $files[] = $f;
+        }
+      }
+
+      // 2) Subcarpetas actN_M dentro de unidadX/actY/
+      foreach (glob("$aDir/*", GLOB_ONLYDIR) ?: [] as $subDir) {
+        $sub = basename($subDir);
+        if (!preg_match('/^act\d+_\d+$/i', $sub)) continue;
+
+        // a) actN_M/actN_M.php
+        $cand = "$subDir/$sub.php";
+        if (is_file($cand) && !in_array(strtolower(basename($cand)), $ignorarLC, true)) {
+          $files[] = $cand;
+          continue;
+        }
+
+        // b) actN_M/actN_M--*.php (tomamos el primero que encaje)
+        foreach (glob("$subDir/*.php") ?: [] as $f2) {
+          $base2 = basename($f2);
+          if (in_array(strtolower($base2), $ignorarLC, true)) continue;
+          if (preg_match('/^'.preg_quote($sub,'/').'(?:--.*)?\.php$/i', $base2)) {
+            $files[] = $f2;
+            break;
+          }
+        }
+      }
+
+      // Construir entradas
       foreach ($files as $f) {
         $base = basename($f);
-        if (in_array(strtolower($base), array_map('strtolower',$ignorarArchivos), true)) continue;
 
         $m = leerMeta($f);
         $titulo = $m['title'] ?: preg_replace('/[_-]+/',' ', pathinfo($base, PATHINFO_FILENAME));
@@ -95,11 +131,13 @@ function recogerMapa($patronUnidad, $patronAct, $ignorarArchivos){
           'code'   => $code,
         ];
       }
+
       if (!empty($mapa[$numU][$numA])) {
         usort($mapa[$numU][$numA], fn($x,$y)=>strnatcasecmp($x['file'],$y['file']));
       }
     }
   }
+
   ksort($mapa, SORT_NUMERIC);
   foreach ($mapa as $uNum => $_acts) {
     ksort($mapa[$uNum], SORT_NUMERIC);
@@ -115,7 +153,27 @@ $mapa = recogerMapa($patronUnidad, $patronAct, $ignorarArchivos);
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Portafolio · <?=h($alumno)?></title>
-  <link rel="stylesheet" href="assets/style.css?v=5">
+  <link rel="stylesheet" href="assets/style.css?v=7">
+  <style>
+    /* ===== Modal overlay (visor) ===== */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;z-index:9999;backdrop-filter:blur(2px)}
+    .overlay.open{display:block}
+    .overlay .sheet{position:absolute;inset:5vh 5vw auto 5vw;height:90vh;background:#0f1218;border:1px solid #222;border-radius:14px;box-shadow:0 12px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden;animation:pop .18s ease}
+    .overlay .bar{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#111;border-bottom:1px solid #222;color:#ddd;font:14px system-ui}
+    .overlay .url{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;color:#aaa}
+    .overlay .btn{border:1px solid #333;background:#1a1f2e;color:#ddd;border-radius:8px;padding:6px 10px;cursor:pointer}
+    .overlay iframe{width:100%;height:100%;border:0;background:#fff;flex:1}
+    @keyframes pop{from{transform:scale(.985);opacity:0}to{transform:scale(1);opacity:1)}
+    /* ⚠️ Importante: NO tocar el <html> con overflow:hidden. Solo usamos body fixed. */
+    /* html.modal-open,body.modal-open{overflow:hidden}  <-- ELIMINADO */
+  </style>
+  <script>
+  // Detecta si este documento está dentro de un iframe llamado "visor"
+  (function(){
+    const isEmbedded = (window.name === 'visor');
+    document.documentElement.setAttribute('data-embed', isEmbedded ? '1' : '0');
+  })();
+  </script>
 </head>
 <body>
 <header class="header">
@@ -127,12 +185,38 @@ $mapa = recogerMapa($patronUnidad, $patronAct, $ignorarArchivos);
         <?=h($asignatura)?> · <?=h($curso)?>
       </p>
       <p>
-        <a class="btn" target="_blank" href="<?=h($github)?>">Ver código en GitHub</a>
+        <a class="btn" href="<?=h($github)?>" target="_blank" rel="noopener" onclick="event.stopPropagation(); window.open(this.href,'_blank','noopener'); return false;">Ver código en GitHub</a>
+        <a class="btn1" href="https://fede.alwaysdata.net/repo" target="_blank">Ver Porftolio del Profe</a>
       </p>
     </div>
   </div>
   <input id="q" type="search" placeholder="Buscar ejercicio…">
 </header>
+
+<?php if($mapa): ?>
+  <!-- ===== Filtros de UNIDADES ===== -->
+  <nav class="unit-filter" aria-label="Filtrar por unidad">
+    <div class="unit-filter-wrap">
+      <button type="button" class="ghost unit-btn active" data-unit="">Todas</button>
+      <?php foreach(array_keys($mapa) as $uNum): ?>
+        <button type="button" class="ghost unit-btn" data-unit="<?=h($uNum)?>">Unidad <?=h($uNum)?></button>
+      <?php endforeach; ?>
+    </div>
+  </nav>
+<?php endif; ?>
+
+<!-- ===== Visor modal overlay ===== -->
+<div id="overlay" class="overlay" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-label="Visor de ejercicio">
+    <div class="bar">
+      <strong>Visor</strong>
+      <span id="overlayUrl" class="url"></span>
+      <button id="overlayReload" class="btn" title="Recargar">Recargar</button>
+      <button id="overlayClose" class="btn" title="Cerrar">Cerrar</button>
+    </div>
+    <iframe id="overlayFrame" name="overlayFrame"></iframe>
+  </div>
+</div>
 
 <main class="container" id="root">
   <?php if(!$mapa): ?>
@@ -141,7 +225,7 @@ $mapa = recogerMapa($patronUnidad, $patronAct, $ignorarArchivos);
     </p>
   <?php else: ?>
     <?php foreach($mapa as $uNum => $acts): ?>
-      <section class="unit">
+      <section class="unit" data-unit="<?=h($uNum)?>">
         <h1>&nbsp;📚 Unidad <?=h($uNum)?></h1>
         <?php foreach($acts as $aNum => $ejercicios): ?>
           <div class="unit-head">
@@ -162,7 +246,7 @@ $mapa = recogerMapa($patronUnidad, $patronAct, $ignorarArchivos);
                   </div>
                 <?php endif; ?>
                 <div class="actions">
-                  <a class="btn" target="_blank" rel="noopener" href="<?=h($ej['file'])?>">Abrir </a>
+                  <a class="btn open-ej" href="<?=h($ej['file'])?>">Abrir</a>
                 </div>
               </article>
             <?php endforeach; ?>
@@ -174,6 +258,7 @@ $mapa = recogerMapa($patronUnidad, $patronAct, $ignorarArchivos);
 </main>
 
 <script>
+// ===== Buscador
 const q = document.getElementById('q');
 q.addEventListener('input', () => {
   const term = q.value.trim().toLowerCase();
@@ -182,6 +267,90 @@ q.addEventListener('input', () => {
     card.style.display = text.includes(term) ? '' : 'none';
   });
 });
+
+// ===== Filtro por UNIDAD
+(function(){
+  const wrap = document.querySelector('.unit-filter');
+  if(!wrap) return;
+  const buttons = Array.from(wrap.querySelectorAll('.unit-btn'));
+  const sections = Array.from(document.querySelectorAll('section.unit'));
+
+  function applyFilter(unit){
+    sections.forEach(sec => {
+      sec.style.display = (!unit || sec.dataset.unit === unit) ? '' : 'none';
+    });
+  }
+  function setActive(btn){
+    buttons.forEach(b => {
+      const on = (b === btn);
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-pressed', on ? 'true' : 'false');
+    });
+  }
+  buttons.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const unit = btn.dataset.unit || '';
+      applyFilter(unit);
+      setActive(btn);
+      // document.getElementById('root').scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  });
+})();
+
+// ===== Visor (overlay) — lock/unlock scroll sin tocar <html>
+(function(){
+  const isEmbedded = document.documentElement.getAttribute('data-embed') === '1';
+  const links = document.querySelectorAll('.actions .open-ej');
+  if (isEmbedded) { links.forEach(a => a.setAttribute('target', 'visor')); return; }
+
+  const overlay = document.getElementById('overlay');
+  const overlayFrame = document.getElementById('overlayFrame');
+  const overlayUrl = document.getElementById('overlayUrl');
+  const overlayClose = document.getElementById('overlayClose');
+  const overlayReload = document.getElementById('overlayReload');
+
+  let __lockScrollY = 0;
+
+  function lockScroll(){
+    __lockScrollY = window.scrollY||window.pageYOffset||0;
+    const sbw = window.innerWidth - document.documentElement.clientWidth;
+    if (sbw>0) document.body.style.paddingRight = sbw+'px';
+    document.body.style.position='fixed';
+    document.body.style.top=`-${__lockScrollY}px`;
+    document.body.style.left='0';
+    document.body.style.right='0';
+    document.body.style.width='100%';
+  }
+  function unlockScroll(){
+    const y = __lockScrollY;
+    document.body.style.position='';
+    document.body.style.top='';
+    document.body.style.left='';
+    document.body.style.right='';
+    document.body.style.width='';
+    document.body.style.paddingRight='';
+    // Doble rAF para asegurar restauración tras reflow/paint
+    requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y)));
+  }
+  function openModal(url){
+    overlayFrame.src = url; 
+    overlayUrl.textContent = url;
+    overlay.classList.add('open');
+    lockScroll();
+  }
+  function closeModal(){
+    overlay.classList.remove('open');
+    unlockScroll();
+  }
+
+  links.forEach(a => { a.addEventListener('click', (e)=>{ e.preventDefault(); openModal(a.href); }); });
+  overlayReload.addEventListener('click', ()=>{ if(overlayFrame && overlayFrame.src) overlayFrame.src = overlayFrame.src; });
+  overlayClose.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && overlay.classList.contains('open')) closeModal(); });
+  overlayFrame.addEventListener('load', ()=>{ try{ overlayUrl.textContent = overlayFrame.contentWindow.location.href; }catch{} });
+})();
 </script>
 </body>
 </html>

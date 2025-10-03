@@ -15,8 +15,8 @@ header, .header {
   position: sticky; top: 0; z-index: 10;
   display: flex; align-items: center; justify-content: space-between; gap: 1rem;
   padding: 1rem 1.25rem;
-  background: #161b22;
-  border-bottom: 1px solid #30363d;
+  background: #172b3f;
+  border-bottom: 1px solid #010810;
 }
 
 .brand { display: flex; align-items: center; gap: .75rem; }
@@ -127,12 +127,13 @@ main { max-width: 1100px; margin: 0 auto; padding: 1.25rem; }
 
 /* Botones */
 .actions { display: flex; gap: .5rem; margin-top: auto; }
-.btn, .ghost {
+.btn, .btn1,.ghost {
   display: inline-flex; align-items: center; justify-content: center;
   text-decoration: none; padding: .5rem .7rem; border-radius: .55rem;
   font-weight: 600; border: 1px solid transparent;
 }
 .btn { background: #1f6feb; color: #fff; }
+.btn1 {background: #0a570b; color: #fff; }
 .btn:hover { filter: brightness(1.08); }
 .ghost { border-color: #30363d; color: #e6edf3; }
 .ghost:hover { background: #161b22; }
@@ -255,4 +256,154 @@ main { max-width: 1100px; margin: 0 auto; padding: 1.25rem; }
   font-size: 2rem;   /* Cambia el tamaño (2rem = bastante grande) */
   margin-left: 8px;  /* Espacio respecto al botón */
   vertical-align: middle;
+}
+
+/* ===== HEADER: escritorio a la izquierda, responsive centrado ===== */
+
+/* Escritorio: dos columnas, sin centrar */
+.header{
+  display: grid;
+  grid-template-columns: 1fr 420px;   /* brand | buscador */
+  gap: 16px;
+  align-items: center;
+  padding: 16px 20px;
+  
+  /* NO centramos el contenedor en desktop */
+}
+
+.header .brand{
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;        /* izquierda */
+  gap: 12px;
+  text-align: left;                   /* títulos a la izquierda */
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.header .banner{
+  width: clamp(190px, 14vw, 240px);   /* tamaño cómodo en desktop */
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.header .title h1{ margin:0 0 4px; line-height:1.15; font-size: clamp(18px, 2vw + 8px, 28px); }
+.header .title .muted{ margin:0 0 8px; opacity:.8; font-size: clamp(12px, 1vw + 8px, 14px); }
+
+/* Buscador ocupa su columna a la derecha */
+/* ===== Buscador más grande ===== */
+#q{
+  width: 100%;
+  max-width: 640px;
+  justify-self: center;
+  padding: 14px 16px;      /* más alto/ancho */
+  font-size: 16px;         /* texto un poquito mayor */
+  border: 1px solid #263047;
+  background: #0f1218;
+  color: #e6e9f5;
+  border-radius: 12px;
+  outline: none;
+}
+#q::placeholder{ color:#9aa3b2; font-size: 16px; }
+
+
+/* ===== Breakpoints ===== */
+
+/* <= 1024px: columna del buscador un poco más compacta */
+@media (max-width: 1024px){
+  .header{ grid-template-columns: 1fr 360px; }
+}
+
+/* <= 960px: APILADO y ahí sí TODO centrado y “cuadrado” */
+@media (max-width: 960px){
+  .header{
+    grid-template-columns: 1fr;       /* stack */
+    gap: 14px;
+    padding: 14px 16px;
+  }
+  .header .brand{
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;               /* títulos centrados SOLO en móvil */
+  }
+  .header .banner{
+    width: clamp(160px, 40vw, 220px); /* baja un pelín para móvil */
+  }
+  #q{
+    max-width: 620px;                 /* ancho contenido */
+    margin-inline: auto;              /* centrado */
+  }
+}
+
+/* <= 640px: botón a ancho completo si quieres */
+@media (max-width: 640px){
+  .header .title .btn{
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Embebido (opcional): compacto */
+html[data-embed="1"] .header{
+  padding: 10px 12px;
+  gap: 10px;
+}
+/* ===== Botones de UNIDADES — centrados y estilo como .btn ===== */
+
+/* Contenedor de la barra (mismo fondo/borde que el header) */
+.unit-filter{
+  background: #48627d;
+  border-bottom: 1px solid #010810;
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: center;  /* centra la fila de botones */
+  border-bottom-left-radius: 12px;   /* 👈 radio parte inferior izquierda */
+  border-bottom-right-radius: 12px;  /* 👈 radio parte inferior derecha */
+}
+
+/* Fila de botones centrada, con salto de línea si no caben */
+.unit-filter .unit-filter-wrap{
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;  /* centrado real */
+  gap: 0.6rem;
+  max-width: 1100px;
+  width: 100%;
+}
+
+/* Estilo de los botones de unidad:
+   - Especificidad > .ghost para sobrescribir color/borde
+   - Visual igual que .btn (azul, texto blanco, hover) */
+.unit-filter .unit-btn{
+  background: #203554;           /* igual que .btn */
+  color: #fff;
+  border: 1px solid transparent;
+  border-radius: 0.55rem;
+  padding: 0.5rem 0.9rem;
+  font-weight: 600;
+  font-size: 0.92rem;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.2s ease;
+}
+
+/* Hover igual que .btn:hover */
+.unit-filter .unit-btn:hover{
+  filter: brightness(1.08);
+}
+
+/* Estado seleccionado (el JS ya pone .active) */
+.unit-filter .unit-btn.active{
+  background: #2563eb;  /* un poco más oscuro para marcar selección */
+}
+
+/* Responsive: que sigan centrados y con separación correcta */
+@media (max-width: 640px){
+  .unit-filter{ padding: 0.6rem 0.9rem; }
+  .unit-filter .unit-filter-wrap{ gap: 0.5rem; }
 }
