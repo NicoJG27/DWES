@@ -163,7 +163,8 @@ $mapa = recogerMapa($patronUnidad, $patronAct, $ignorarArchivos);
     .overlay .url{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;color:#aaa}
     .overlay .btn{border:1px solid #333;background:#1a1f2e;color:#ddd;border-radius:8px;padding:6px 10px;cursor:pointer}
     .overlay iframe{width:100%;height:100%;border:0;background:#fff;flex:1}
-    @keyframes pop{from{transform:scale(.985);opacity:0}to{transform:scale(1);opacity:1)}
+    @keyframes pop{from{transform:scale(.985);opacity:0;}to{transform:scale(1);opacity:1;}}
+  
     /* ⚠️ Importante: NO tocar el <html> con overflow:hidden. Solo usamos body fixed. */
     /* html.modal-open,body.modal-open{overflow:hidden}  <-- ELIMINADO */
   </style>
