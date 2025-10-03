@@ -8,19 +8,17 @@
 </head>
 
 <body>
-    <?php
-    $num = 0;
-    while ($num < 50 || $num++) {
-        echo ($num);
-    }
-    ?>
-
-    <h1>Números pares del 0 al 10</h1>
+    <h1>Números pares del 0 al 50</h1>
     <ul>
-        <li>Número 1: <b> <?php echo $num1 ?> </b> </li>
-        <li>Número 2: <b> <?php echo $num2 ?> </b> </li>
-        <li>Número 3: <b> <?php echo $num3 ?> </b> </li>
+        <?php
+        $num = 0;
+        for ($num = 0; $num <= 50; $num += 2) {
+            echo "<li> $num </li>";
+        }
+        ?>
     </ul>
+
+
 
 </body>
 
