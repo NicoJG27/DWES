@@ -30,7 +30,10 @@
 
     echo "<h1>Alturas de las personas</h1>";
     echo "<table>";
-    echo "<tr><th>Nombre</th><th>Altura (cm)</th></tr>";
+    echo "<tr>
+    <th>Nombre</th>
+    <th>Altura (cm)</th>
+    </tr>";
 
     foreach ($personas as $nombre => $altura) {
         echo "<tr><td>$nombre</td><td>$altura</td></tr>";
@@ -44,8 +47,14 @@
 
     $media = $suma / count($personas);
 
-    echo "<tr><td>Altura media</td><td>". number_format ($media, 2) . "</td></tr>";
-    echo "<tr><td>Más alto</td><td>" . $personaAlta . "</td></tr>";
+    echo "<tr>
+    <td>Altura media</td>
+    <td>". number_format ($media, 2) ."</td>
+    </tr>";
+    echo "<tr>
+    <td>Más alto</td>
+    <td>" . $personaAlta . "</td><
+    /tr>";
     echo "</table>";
     ?>
 
