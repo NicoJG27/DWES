@@ -9,21 +9,24 @@
 
 <body>
     <?php
-    $comentario = "Este es mi comentario de prueba para calcular cuántos caracteres tiene y cuánto falta para llegar al límite de 160.";
+    $comentario = "Este es mi comentario para soporte técnico.";
     $longitud = strlen($comentario);
     $limite = 160;
     $restantes = $limite - $longitud;
 
-    echo "El comentario tiene $longitud caracteres.<br>";
+    echo "<h2>Comentario</h2>";
+    echo "$comentario<br><br>";
+    echo "Longitud: <b>$longitud</b> caracteres<br><br>";
 
     if ($restantes > 0) {
-        echo "Faltan $restantes caracteres para llegar al límite de 160.";
+        echo "Te quedan <b>$restantes</b> caracteres.";
     } elseif ($restantes < 0) {
-        echo "Te has pasado por  $restantes  caracteres del límite.";
+        echo "Te has pasado por <b>$restantes</b> caracteres.";
     } else {
-        echo "¡Exactamente 160 caracteres!";
+        echo "Has alcanzado el límite exacto de 160 caracteres.";
     }
     ?>
+
 
 </body>
 
