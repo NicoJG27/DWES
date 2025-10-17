@@ -5,8 +5,9 @@ $asignatura = "Desarrollo Web en Entorno Servidor";
 $curso      = "2025/26";
 $github     = "https://github.com/NicoJG27/DWES.git"; 
 
-// Patrones: carpetas unidadX / actY
-$patronUnidad = '/^unidad(\d+)$/i';
+// Patrones: la carpeta de unidad puede llamarse como quieras (Formulario, Sesiones, Cookies, …)
+// y las actividades siguen siendo actY
+$patronUnidad = '/^(.+)$/i';
 $patronAct    = '/^act(\d+)$/i';
 
 // Ignorar
@@ -17,7 +18,9 @@ function h($s){ return htmlspecialchars((string)$s, ENT_QUOTES, 'UTF-8'); }
 
 function leerMeta($ruta){
   $meta = ['title'=>null,'desc'=>null,'tags'=>[],'code'=>null];
-  $base = basename($ruta, '.php');
+  // Soporta .php y .html
+  $base = pathinfo($ruta, PATHINFO_FILENAME);
+
   if (strpos($base, '--') !== false){
     [, $titulo] = explode('--', $base, 2);
     $meta['title'] = trim(str_replace(['_','-'], [' ',' '], $titulo));
@@ -62,8 +65,9 @@ function leerMeta($ruta){
 
 /**
  * Recolecta ejercicios:
- *  - PHP directamente en unidadX/actY/: actN_M.php o actN_M--*.php
- *  - Subcarpetas unidadX/actY/actN_M/ con actN_M.php o actN_M--*.php dentro
+ *  - PHP/HTML directamente en unidad/actY/: actN_M(.php|.html) o actN_M--*.php|html
+ *  - Subcarpetas unidad/actY/actN_M/ con actN_M.php|html o actN_M--*.php|html dentro
+ *  Donde "unidad" ahora puede llamarse como quieras (Formulario, Sesiones, …)
  */
 function recogerMapa($patronUnidad, $patronAct, $ignorarArchivos){
   $mapa = [];
@@ -72,7 +76,9 @@ function recogerMapa($patronUnidad, $patronAct, $ignorarArchivos){
   foreach (scandir('.') as $u) {
     if ($u[0]==='.' || !is_dir($u)) continue;
     if (!preg_match($patronUnidad, $u, $mu)) continue;
-    $numU = (int)$mu[1];
+
+    // Etiqueta visible: capitalizada (unidad3 -> Unidad3)
+    $uLbl = ucwords(str_replace(['_', '-'], ' ', strtolower(trim($mu[1]))));
 
     foreach (glob("$u/*", GLOB_ONLYDIR) ?: [] as $aDir) {
       $a = basename($aDir);
@@ -81,32 +87,34 @@ function recogerMapa($patronUnidad, $patronAct, $ignorarArchivos){
 
       $files = [];
 
-      // 1) Ficheros PHP directamente en unidadX/actY/
-      foreach (glob("$aDir/*.php") ?: [] as $f) {
+      // 1) Ficheros PHP/HTML directamente en unidad/actY/
+      foreach (array_merge(glob("$aDir/*.php") ?: [], glob("$aDir/*.html") ?: []) as $f) {
         $base = basename($f);
         if (in_array(strtolower($base), $ignorarLC, true)) continue;
-        if (preg_match('/^act\d+_\d+(?:--.*)?\.php$/i', $base)) {
+        if (preg_match('/^act\d+_\d+(?:--.*)?\.(php|html)$/i', $base)) {
           $files[] = $f;
         }
       }
 
-      // 2) Subcarpetas actN_M dentro de unidadX/actY/
+      // 2) Subcarpetas actN_M dentro de unidad/actY/
       foreach (glob("$aDir/*", GLOB_ONLYDIR) ?: [] as $subDir) {
         $sub = basename($subDir);
         if (!preg_match('/^act\d+_\d+$/i', $sub)) continue;
 
-        // a) actN_M/actN_M.php
-        $cand = "$subDir/$sub.php";
-        if (is_file($cand) && !in_array(strtolower(basename($cand)), $ignorarLC, true)) {
-          $files[] = $cand;
-          continue;
+        // a) actN_M/actN_M.php|html
+        foreach (['php','html'] as $ext) {
+          $cand = "$subDir/$sub.$ext";
+          if (is_file($cand) && !in_array(strtolower(basename($cand)), $ignorarLC, true)) {
+            $files[] = $cand;
+            continue 2; // saltamos a la siguiente subcarpeta
+          }
         }
 
-        // b) actN_M/actN_M--*.php (tomamos el primero que encaje)
-        foreach (glob("$subDir/*.php") ?: [] as $f2) {
+        // b) actN_M/actN_M--*.php|html (tomamos el primero que encaje)
+        foreach (array_merge(glob("$subDir/*.php") ?: [], glob("$subDir/*.html") ?: []) as $f2) {
           $base2 = basename($f2);
           if (in_array(strtolower($base2), $ignorarLC, true)) continue;
-          if (preg_match('/^'.preg_quote($sub,'/').'(?:--.*)?\.php$/i', $base2)) {
+          if (preg_match('/^'.preg_quote($sub,'/').'(?:--.*)?\.(php|html)$/i', $base2)) {
             $files[] = $f2;
             break;
           }
@@ -123,7 +131,7 @@ function recogerMapa($patronUnidad, $patronAct, $ignorarArchivos){
         $tags   = $m['tags']  ?: [];
         $code   = $m['code']  ?: '';
 
-        $mapa[$numU][$numA][] = [
+        $mapa[$uLbl][$numA][] = [
           'file'   => $f,
           'titulo' => $titulo,
           'desc'   => $desc,
@@ -132,16 +140,20 @@ function recogerMapa($patronUnidad, $patronAct, $ignorarArchivos){
         ];
       }
 
-      if (!empty($mapa[$numU][$numA])) {
-        usort($mapa[$numU][$numA], fn($x,$y)=>strnatcasecmp($x['file'],$y['file']));
+      if (!empty($mapa[$uLbl][$numA])) {
+        usort($mapa[$uLbl][$numA], fn($x,$y)=>strnatcasecmp($x['file'],$y['file']));
       }
     }
   }
 
-  ksort($mapa, SORT_NUMERIC);
-  foreach ($mapa as $uNum => $_acts) {
-    ksort($mapa[$uNum], SORT_NUMERIC);
+  // Ordenar actividades por número dentro de cada unidad
+  foreach ($mapa as $uLbl => $_acts) {
+    ksort($mapa[$uLbl], SORT_NUMERIC);
   }
+
+  // Ordenar unidades alfabéticamente (natural, case-insensitive)
+  uksort($mapa, fn($a,$b)=>strnatcasecmp($a,$b));
+
   return $mapa;
 }
 
@@ -163,8 +175,7 @@ $mapa = recogerMapa($patronUnidad, $patronAct, $ignorarArchivos);
     .overlay .url{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;color:#aaa}
     .overlay .btn{border:1px solid #333;background:#1a1f2e;color:#ddd;border-radius:8px;padding:6px 10px;cursor:pointer}
     .overlay iframe{width:100%;height:100%;border:0;background:#fff;flex:1}
-    @keyframes pop{from{transform:scale(.985);opacity:0;}to{transform:scale(1);opacity:1;}}
-  
+    @keyframes pop{from{transform:scale(.985);opacity:0}to{transform:scale(1);opacity:1}}
     /* ⚠️ Importante: NO tocar el <html> con overflow:hidden. Solo usamos body fixed. */
     /* html.modal-open,body.modal-open{overflow:hidden}  <-- ELIMINADO */
   </style>
@@ -199,8 +210,8 @@ $mapa = recogerMapa($patronUnidad, $patronAct, $ignorarArchivos);
   <nav class="unit-filter" aria-label="Filtrar por unidad">
     <div class="unit-filter-wrap">
       <button type="button" class="ghost unit-btn active" data-unit="">Todas</button>
-      <?php foreach(array_keys($mapa) as $uNum): ?>
-        <button type="button" class="ghost unit-btn" data-unit="<?=h($uNum)?>">Unidad <?=h($uNum)?></button>
+      <?php foreach(array_keys($mapa) as $uLbl): ?>
+        <button type="button" class="ghost unit-btn" data-unit="<?=h($uLbl)?>"><?=h($uLbl)?></button>
       <?php endforeach; ?>
     </div>
   </nav>
@@ -222,12 +233,12 @@ $mapa = recogerMapa($patronUnidad, $patronAct, $ignorarArchivos);
 <main class="container" id="root">
   <?php if(!$mapa): ?>
     <p class="empty">No se han encontrado ejercicios.
-      Crea carpetas <code>unidad1/act1/</code> y sube tus <code>actN_N.php</code>.
+      Crea carpetas (por ejemplo) <code>Formulario/act1/</code> y sube tus <code>actN_N.php</code> o <code>actN_N.html</code>.
     </p>
   <?php else: ?>
-    <?php foreach($mapa as $uNum => $acts): ?>
-      <section class="unit" data-unit="<?=h($uNum)?>">
-        <h1>&nbsp;📚 Unidad <?=h($uNum)?></h1>
+    <?php foreach($mapa as $uLbl => $acts): ?>
+      <section class="unit" data-unit="<?=h($uLbl)?>">
+        <h1>&nbsp;📚 <?=h($uLbl)?></h1>
         <?php foreach($acts as $aNum => $ejercicios): ?>
           <div class="unit-head">
             <div class="unit-title">
@@ -294,7 +305,6 @@ q.addEventListener('input', () => {
       const unit = btn.dataset.unit || '';
       applyFilter(unit);
       setActive(btn);
-      // document.getElementById('root').scrollIntoView({behavior:'smooth',block:'start'});
     });
   });
 })();
@@ -331,7 +341,6 @@ q.addEventListener('input', () => {
     document.body.style.right='';
     document.body.style.width='';
     document.body.style.paddingRight='';
-    // Doble rAF para asegurar restauración tras reflow/paint
     requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y)));
   }
   function openModal(url){

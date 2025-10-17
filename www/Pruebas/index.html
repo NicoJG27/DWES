@@ -2,19 +2,45 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
-    <title>Document</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <title>Document</title>
 </head>
 
 <body>
-    <h1>Formulario</h1>
-    <form method="post" action="procesar.php">
-    <label>Nombre <input type="text" name= "nombre" id = "nombre"></label>
-    <label>Subir archivo <input type="file" name="archivo" accept=".pdf,.jpg,.png,.doc,.docx">
-      </label>
-    </form>
+  <main class="container">
+  <h1>Formulario</h1>
+  <form method="post" action="procesar.php">
+    <label>Nombre <input type="text" name="nombre" id="nombre"></label>
+    <label>Pais
+      <select name="pais">
+        <option value="">- Selecciona ----</option>
+        <option value="es">España</option>
+        <option value="mx">Mexico</option>
+        <option value="ar">Argentina</option>
+        <option value="co">Colombia</option>
+      </select>
+    </label>
+    <label>Lenguajes
+      <select name="lenguajes[]" multiple>
+        <option value="html">HTML</option>
+        <option value="css">CSS</option>
+        <option value="javascript">JavaScript</option>
+        <option value="php">PHP</option>
+      </select>
+    </label>
+    <fieldset>
+      <legend>Habilidades adicionales</legend>
+      <label><input type="checkbox" name="habilidades[]" value="ux"> Diseno UX/UI</label>
+      <label><input type="checkbox" name="habilidades[]" value="bbdd"> Bases de datos</label>
+      <label><input type="checkbox" name="habilidades[]" value="git"> Control de versiones</label>
+      <label><input type="checkbox" name="habilidades[]" value="seo"> SEO</label>
+    </fieldset>
+    <label>Subir<input type="Submit" name="enviar">
+    </label>
+  </form>
+  </main>
 </body>
 
 </html>
