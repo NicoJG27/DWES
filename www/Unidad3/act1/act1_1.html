@@ -9,28 +9,27 @@
 </head>
 
 <body>
-  <main class="container">
+  <main  class="container" style="max-width:600px;margin:40px auto;">
     <h1>Formulario</h1>
     <form method="post" action="resumen.php">
-      <label>Nombre y Apellidos <input type="text" name="nombre" id="nombre"></label>
-      <label>Email <input type="text" name="email" id="email"></label>
-      <label>URL página personal <input type="text" name="url" id="url"></label>
+      <label>Nombre y Apellidos <input type="text" name="nombre" id="nombre" required></label>
+      <label>Email <input type="text" name="email" id="email" required></label>
+      <label>URL página personal <input type="text" name="url" id="url" required></label>
 
-      <fieldset>Sexo:
-        <label></label><input type="radio" name="sexo" value="Hombre"> Hombre</label>
-        <label><input type="radio" name="sexo" value="Mujer"> Mujer</label>
+      <fieldset required>Sexo:
+        <label><input type="radio" name="sexo" value="Hombre"> Hombre</label><br>
+        <label><input type="radio" name="sexo" value="Mujer"> Mujer</label><br>
         <label><input type="radio" name="sexo" value="Otro"> Otro</label>
       </fieldset>
 
       <label>Número de convivientes (0 a 5):</label>
-      <input type="number" name="convivientes" min="0" max="5">
+      <input type="number" name="convivientes" min="0" max="5" required>
 
-      <fieldset>Aficiones
+      <fieldset required>Aficiones:
         <input type="checkbox" name="Aficiones[]" value="lec">Lectura
         <input type="checkbox" name="Aficiones[]" value="dep">Deporte
         <input type="checkbox" name="Aficiones[]" value="cin">Cine
         <input type="checkbox" name="Aficiones[]" value="via">Viajar
-        </select>
       </fieldset>
 
       <label>Menú favorito
