@@ -1,8 +1,5 @@
 <?php
 
-session_start();
-
-
 if (isset($_POST['aceptar_cookies'])) {
 
     setcookie('cookies_aceptadas', 'si', time() + 86400);
