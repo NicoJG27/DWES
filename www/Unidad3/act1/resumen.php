@@ -1,50 +1,119 @@
-<?php
-if (!empty($_POST['nombre'])) {
-    echo "El nombre es " . $_POST['nombre'] . "<br>";
-} else {
-    echo "No se ha especificado <br>";
-}
-// Paises permitidos
-define('OPCIONES1', ['es', 'ar', 'mx', 'co']);
-if (!empty($_POST['pais'])) {
-    if (in_array($_POST['pais'], OPCIONES1)) {
-        echo "Pais: se ha recibido " . $_POST['pais'] . "<br>";
-    } else {
-        echo 'El pais no tiene un valor válido' . "<br>";
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+  <title>Resumen del formulario</title>
+</head>
+
+<body>
+  <main class="container" style="max-width:600px;margin:40px auto;">
+    <h1>Resultado del formulario</h1>
+
+    <?php
+    function limpiar($dato)
+    { 
+      return htmlspecialchars(trim($dato), ENT_QUOTES, 'UTF-8');
     }
-} else {
-    echo 'El pais no se ha recibido' . "<br>";
-}
+
+    $errores = [];
+    $nombre = $email = $url = $sexo = $convivientes = $menu = "";
+    $aficiones = [];
 
 
-// Procesamiento de lenguajes.
-$lenguajes_permitidos = ['html', 'css', 'javascript', 'php'];
-if (!empty($_POST['lenguajes']) && is_array($_POST['lenguajes'])) {
+    if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $no_validos = array_diff($_POST['lenguajes'], $lenguajes_permitidos);
-    if (count($no_validos) == 0) {
-        echo 'Los lenguajes recibidos estan dentro de los esperados y son: ' . implode(', ', $_POST['lenguajes']);
+      // Nombre
+      if (empty($_POST["nombre"])) {
+        $errores[] = "El nombre y apellidos son obligatorios.";
+      } else {
+        $nombre = limpiar($_POST["nombre"]);
+        if (strlen($nombre) > 60) {
+          $errores[] = "El nombre no puede tener más de 60 caracteres.";
+        }
+      }
+
+      // Email
+      if (empty($_POST["email"])) {
+        $errores[] = "El email es obligatorio.";
+      } else {
+        $email = limpiar($_POST["email"]);
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+          $errores[] = "El formato del email no es válido (ejemplo: usuario@dominio.com).";
+        }
+      }
+
+      // URL
+      if (empty($_POST["url"])) {
+        $errores[] = "La URL es obligatoria.";
+      } else {
+        $url = limpiar($_POST["url"]);
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
+          $errores[] = "La URL no tiene un formato válido (ejemplo: https://ejemplo.com).";
+        }
+      }
+
+      // Sexo
+      if (empty($_POST["sexo"])) {
+        $errores[] = "Debe seleccionar su sexo.";
+      } else {
+        $sexo = limpiar($_POST["sexo"]);
+      }
+
+      // Convivientes
+      if ($_POST["convivientes"] === "") {
+        $errores[] = "Debe indicar el número de convivientes.";
+      } else {
+        $convivientes = (int) limpiar($_POST["convivientes"]);
+        if ($convivientes < 0 || $convivientes > 5) {
+          $errores[] = "El número de convivientes debe estar entre 0 y 5.";
+        }
+      }
+
+      // Aficiones
+      if (empty($_POST["Aficiones"])) {
+        $errores[] = "Debe seleccionar al menos una afición.";
+      } else {
+        $aficiones = array_map('limpiar', $_POST["Aficiones"]);
+      }
+
+      // Menú
+      if (empty($_POST["menu"])) {
+        $errores[] = "Debe seleccionar un menú favorito.";
+      } else {
+        $menu = limpiar($_POST["menu"]);
+      }
+
+      // Mostrar errores o tabla resumen
+      if (!empty($errores)) {
+        echo "<article style='color:red;'>";
+        echo "<h3> Se han encontrado los siguientes errores:</h3><ul>";
+        foreach ($errores as $e) {
+          echo "<li>$e</li>";
+        }
+        echo "</ul>";
+        echo "<p><a href='index.php'>Volver al formulario</a></p>";
+        echo "</article>";
+      } else {
+        echo "<h3> Datos recibidos correctamente:</h3>";
+        echo "<table role='grid'>";
+        echo "<tr><th>Campo</th><th>Valor</th></tr>";
+        echo "<tr><td>Nombre y Apellidos</td><td>$nombre</td></tr>";
+        echo "<tr><td>Email</td><td>$email</td></tr>";
+        echo "<tr><td>URL</td><td><a href='$url' target='_blank'>$url</a></td></tr>";
+        echo "<tr><td>Sexo</td><td>$sexo</td></tr>";
+        echo "<tr><td>Convivientes</td><td>$convivientes</td></tr>";
+        echo "<tr><td>Aficiones</td><td>" . implode(", ", $aficiones) . "</td></tr>";
+        echo "<tr><td>Menú favorito</td><td>$menu</td></tr>";
+        echo "</table>";
+      }
     } else {
-        echo 'Se han recibido lenguajes no esperados';
+      echo "<p>No se han recibido datos del formulario.</p>";
     }
-} else {
-    echo 'No se han recibido los lenguajes o no son del tipo esperado.';
-}
-echo "<br>";
+    ?>
 
-$habilidades_permitidas = ['ux', 'bbdd', 'git', 'seo'];
+  </main>
+</body>
 
-if (!empty($_POST['habilidades']) && is_array($_POST['habilidades'])) {
-
-    $no_validos = array_diff($_POST['habilidades'], $habilidades_permitidas);
-    if (count($no_validos) == 0) {
-        echo 'Las habilidades recibidas están dentro de las esperadas y son: ' . implode(', ', $_POST['habilidades']);
-    } else {
-        echo 'Se han recibido habilidades no esperadas.';
-    }
-} else {
-    echo 'No se han recibido las habilidades o no son del tipo esperado.';
-}
-
-echo "<br>";
-?>
+</html>
