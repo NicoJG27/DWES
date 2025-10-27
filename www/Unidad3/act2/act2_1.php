@@ -1,5 +1,4 @@
 <?php
-session_start();
 $todos_color = [
     'bl'  => 'white',
     'ro'  => 'red',
@@ -9,15 +8,21 @@ $todos_color = [
     'na'  => 'orange',
     'ros' => 'pink'
 ];
-$color = isset($_COOKIE['color']) ? $_COOKIE['color'] : 'bl';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $color = $_POST['color'];
-    setcookie('color', $color, time() + 86400); 
-    header("Location: act2_1.php"); 
-    exit();
+
+$color = 'bl';
+
+
+if (isset($_COOKIE['color']) && array_key_exists($_COOKIE['color'], $todos_color)) {
+    $color = $_COOKIE['color'];
 }
-$bg_color = $todos_color[$color] ?? 'white';
+
+if (isset($_POST['color']) && array_key_exists($_POST['color'], $todos_color)) {
+    $color = $_POST['color'];
+    setcookie('color', $color, time() + 86400);
+}
+
+$bg_color = $todos_color[$color];
 ?>
 
 <!DOCTYPE html>
@@ -30,7 +35,7 @@ $bg_color = $todos_color[$color] ?? 'white';
 <body style="background-color: <?php echo $bg_color; ?>;">
     <main class="container" style="max-width:600px;margin:40px auto;">
         <h1>Selecciona un color</h1>
-        <form method="post" action="act2_1.php">
+        <form method="post" action="">
             <label>
                 <select name="color">
                     <option value="bl" <?php if($color=="bl") echo "selected"; ?>>Blanco</option>
@@ -48,6 +53,3 @@ $bg_color = $todos_color[$color] ?? 'white';
     </main>
 </body>
 </html>
-
-
-
