@@ -9,11 +9,13 @@ $maxVotos = 20;
 
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Votación</title>
-    <link rel="stylesheet" href="https://unpkg.com/picocss@1.*/css/pico.min.css">
+    <link rel="stylesheet" href="pico.min.css">
 </head>
+
 <body>
     <main class="contenedor" style="max-width:600px;margin:40px auto;">
         <h1>Votación</h1>
@@ -31,4 +33,5 @@ $maxVotos = 20;
         </form>
     </main>
 </body>
+
 </html>
