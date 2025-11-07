@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/app/Interfaces/ResumenInterface.php';
+require_once __DIR__ . '/app/Interfaces/DetalleInterface.php';
 require_once __DIR__ . '/app/Models/Producto.php';
 require_once __DIR__ . '/app/Models/ProductoFisico.php';
 require_once __DIR__ . '/app/Models/ProductoDigital.php';
@@ -38,7 +38,7 @@ use App\Models\Pedido;
             $pedido1->agregarProducto($ebook);
             $pedido1->agregarProducto($game);
 
-            $pedido1->mostrarResumen();
+            $pedido1->mostrarDetalle();
             ?>
         </article>
         <article>
@@ -52,7 +52,7 @@ use App\Models\Pedido;
             $pedido2->agregarProducto($macbook);
             $pedido2->agregarProducto($ebook);
 
-            $pedido2->mostrarResumen();
+            $pedido2->mostrarDetalle();
             ?>
         </article>
     </main>

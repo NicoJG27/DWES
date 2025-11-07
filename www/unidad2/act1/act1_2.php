@@ -1,3 +1,14 @@
+<?php
+/*
+---
+title: Ejercicio 2: Unidad 2
+desc: Media números
+tags: [PHP, basico]
+---
+*/
+?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>

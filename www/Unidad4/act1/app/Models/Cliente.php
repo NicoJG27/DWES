@@ -4,10 +4,10 @@ namespace App\Models;
 
 class Cliente
 {
-    private $nombre;
-    private $email;
+    private string $nombre;
+    private string $email;
 
-    public function __construct($nombre, $email)
+    public function __construct(string $nombre, string $email)
     {
         $this->nombre = $nombre;
         $this->email = $email;
@@ -21,5 +21,18 @@ class Cliente
     public function getEmail()
     {
         return $this->email;
+    }
+
+    public function setNombre(string $nombre): void
+    {
+        $this -> nombre = $nombre;
+    }
+        public function setEmail(string $email): void
+    {
+        $this -> email = $email;
+    }
+
+    public function __Tostring(){
+        return $this-> getNombre() .  " (" . $this-> getEmail() . ")";
     }
 }

@@ -2,30 +2,30 @@
 
 namespace App\Models;
 
-use App\Interfaces\ResumenInterface;
+use App\Interfaces\DetalleInterface;
 
-class Pedido implements ResumenInterface
+class Pedido implements DetalleInterface
 {
-    private $cliente;
-    private $productos = [];
+    private Cliente $cliente;
+    private array $productos = [];
 
-    public function __construct($cliente)
+    public function __construct(Cliente $cliente)
     {
         $this->cliente = $cliente;
     }
 
-    public function agregarProducto($producto)
+    public function agregarProducto(Producto $producto)
     {
         $this->productos[] = $producto;
     }
 
-    public function mostrarResumen()
+    public function mostrarDetalle()
     {
-        echo "<h3>Pedido de " . $this->cliente->getNombre() . "</h3>";
+        echo "<h3>Pedido de " . $this->cliente->__Tostring() . "</h3>";
 
         $total = 0;
         foreach ($this->productos as $producto) {
-            $producto->mostrarResumen();
+            $producto->mostrarDetalle();
             $total += $producto->getPrecio();
         }
 

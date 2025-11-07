@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use App\Interfaces\ResumenInterface;
+use App\Interfaces\DetalleInterface;
 
-abstract class Producto implements ResumenInterface
+abstract class Producto implements DetalleInterface
 {
-    private $codigo;
-    protected $precio;
+    private string $codigo;
+    protected float $precio;
 
-    public function __construct($codigo, $precio)
+    public function __construct(string $codigo, float $precio)
     {
         $this->codigo = $codigo;
         $this->precio = $precio;
@@ -25,10 +25,10 @@ abstract class Producto implements ResumenInterface
         return $this->precio;
     }
 
-    public function setPrecio($precio)
+    public function setPrecio($precio): void
     {
         $this->precio = $precio;
     }
 
-    abstract public function mostrarResumen();
+    abstract public function mostrarDetalle();
 }

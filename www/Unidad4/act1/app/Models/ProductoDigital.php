@@ -4,15 +4,15 @@ namespace App\Models;
 
 class ProductoDigital extends Producto
 {
-    private $tamanoArchivo;
+    private float $tamanoArchivo;
 
-    public function __construct($codigo, $precio, $tamanoArchivo)
+    public function __construct(string $codigo, float $precio, float $tamanoArchivo)
     {
         parent::__construct($codigo, $precio);
         $this->tamanoArchivo = $tamanoArchivo;
     }
 
-    public function mostrarResumen()
+    public function mostrarDetalle()
     {
         echo "💾 Producto digital " . $this->getCodigo() . " - " . $this->getPrecio() . "€ (" . $this->tamanoArchivo . "MB)<br>";
     }

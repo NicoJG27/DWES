@@ -2,14 +2,14 @@
 namespace App\Models;
 
 class ProductoFisico extends Producto {
-    private $peso;
+    private float $peso;
 
-    public function __construct($codigo, $precio, $peso) {
+    public function __construct(string $codigo, float $precio, float $peso) {
         parent::__construct($codigo, $precio);
         $this->peso = $peso;
     }
 
-    public function mostrarResumen() {
+    public function mostrarDetalle() {
         echo "📦 Producto físico " . $this->getCodigo() . " - " . $this->getPrecio() . "€ (" . $this->peso . " kg)<br>";
     }
 }
