@@ -3,7 +3,7 @@ services:
     image: php:8.2-apache
     container_name: web
     ports:
-      - "8080:80"          # evita chocar con el puerto 80 local
+      - "8082:80"          # evita chocar con el puerto 80 local
     volumes:
       - ./www:/var/www/html
     depends_on:
