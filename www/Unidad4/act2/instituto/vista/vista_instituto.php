@@ -25,14 +25,6 @@ function mostrarListaEstudiantes(array $estudiantes)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión del Instituto</title>
-    <style>
-        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 20px auto; padding: 0 15px; }
-        h1, h2 { color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 5px; }
-        h1 { text-align: center; }
-        h2 { margin-top: 30px; }
-        ol { padding-left: 20px; }
-        li { margin-bottom: 8px; }
-    </style>
 </head>
 <body>
 

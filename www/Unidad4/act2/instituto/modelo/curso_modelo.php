@@ -31,7 +31,7 @@
         }
 
         public function vaciarTodo(){
-            $sql = "TRUNCATE TABLE cursos";
+            $sql = "DELETE FROM cursos";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
         }
