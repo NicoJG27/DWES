@@ -6,7 +6,7 @@ function mostrarListaEstudiantes(array $estudiantes)
         return;
     }
     
-    echo "<ol>";
+    echo "<article>";
     foreach ($estudiantes as $est) {
         $id = htmlspecialchars($est['id']);
         $nombre = htmlspecialchars($est['nombre']);
@@ -15,7 +15,7 @@ function mostrarListaEstudiantes(array $estudiantes)
         
         echo "<li>$id. $nombre ($edad años) - Curso: $curso</li>";
     }
-    echo "</ol>";
+    echo "</article>";
 }
 ?>
 
@@ -32,11 +32,11 @@ function mostrarListaEstudiantes(array $estudiantes)
 
     <h2>📚 Cursos</h2>
     <?php if (!empty($data['cursos'])) : ?>
-        <ol>
+        <article>
             <?php foreach ($data['cursos'] as $curso) : ?>
                 <li><?php echo htmlspecialchars($curso['id']); ?>. <?php echo htmlspecialchars($curso['nombre']); ?></li>
             <?php endforeach; ?>
-        </ol>
+        </article>
     <?php else : ?>
         <p>No hay cursos registrados.</p>
     <?php endif; ?>
