@@ -34,6 +34,10 @@
             $sql = "DELETE FROM cursos";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute();
+
+            $sqlReset = "ALTER TABLE cursos AUTO_INCREMENT = 1";
+            $stmtReset = $this->pdo->prepare($sqlReset);
+            $stmtReset->execute();
         }
     }
 ?>

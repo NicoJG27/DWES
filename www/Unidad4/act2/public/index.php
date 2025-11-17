@@ -1,10 +1,10 @@
 <?php
 
-require_once '../config.php';
-require_once '../modelo/curso_modelo.php';
-require_once '../modelo/estudiante_modelo.php';
-require_once '../controlador/instituto_controlador.php';
 
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../modelo/curso_modelo.php';
+require_once __DIR__ . '/../modelo/estudiante_modelo.php';
+require_once __DIR__ . '/../controlador/instituto_controlador.php';
 
 try {
     $pdo = new PDO(DB_DSN, DB_USER, DB_PASS);
@@ -26,6 +26,6 @@ $controlador = new InstitutoControlador($modeloCurso, $modeloEstudiante);
 $data = $controlador->ejecutar();
 
 
-require_once '../vista/vista_instituto.php';
+require_once __DIR__ . '/../vista/vista_instituto.php';
 
 ?>
