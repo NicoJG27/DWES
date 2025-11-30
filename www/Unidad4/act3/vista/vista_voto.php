@@ -1,76 +1,70 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
-
 <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="pico.min.css">
-    <title>Votaciones</title>
+    <meta charset="utf-8">
+    <title>Votaciones simples</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
 </head>
-
 <body>
-    <main class="container" style="max-width:600px;margin:40px auto;">
-    <h1>Sistema de Votaciones</h1>
+    <main class="container">
+        
+        <h1>🗳️ Votaciones</h1>
+        <br><br>
 
-    <form method="POST">
-        <label>Nueva opción:</label>
-        <input type="text" name="texto_opcion" required>
-        <button type="submit" name="nueva_opcion">Agregar</button>
-    </form>
+        <form method="post">
+            <?php if (!empty($data['opciones'])): ?>
+                <?php foreach ($data['opciones'] as $opcion): ?>
+                    <label>
+                        <input type="radio" name="voto" value="<?php echo $opcion['id']; ?>" required> 
+                        <?php echo htmlspecialchars($opcion['opcion']); ?>
+                    </label>
+                    <br>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p>No hay opciones disponibles.</p>
+            <?php endif; ?>
 
-    <hr>
+            <button type="submit">Votar</button> 
+            <small>Total: <?php echo $data['total']; ?></small>
+        </form>
 
-    <h3>Total de votos registrados: <?php echo $data['total']; ?></h3>
-
-    <table border="1" cellpadding="10">
-        <thead>
+        <h3>Resultados</h3>
+        <table>
             <tr>
                 <th>Opción</th>
                 <th>Votos</th>
-                <th>Porcentaje</th>
-                <th>Acciones</th>
+                <th>%</th>
+                <th>Eliminar</th>
             </tr>
-        </thead>
-        <tbody>
-            <?php if (!empty($data['opciones'])): ?>
-
-                <?php foreach ($data['opciones'] as $fila): ?>
-                    <?php
-                    // Calculamos porcentaje aquí mismo, sencillo
+            
+            <?php foreach ($data['opciones'] as $opcion): ?>
+                <?php 
+                    // Cálculo del porcentaje
                     if ($data['total'] > 0) {
-                        $porcentaje = round(($fila['votos'] / $data['total']) * 100, 1);
+                        $porcentaje = round(($opcion['votos'] / $data['total']) * 100) . '%';
                     } else {
-                        $porcentaje = 0;
+                        $porcentaje = '0%';
                     }
-                    ?>
-                    <tr>
-                        <td><?php echo $fila['opcion']; ?></td>
-
-                        <td><?php echo $fila['votos']; ?></td>
-
-                        <td><?php echo $porcentaje; ?>%</td>
-
-                        <td>
-                            <form method="POST" style="display:inline;">
-                                <input type="hidden" name="votar_id" value="<?php echo $fila['id']; ?>">
-                                <button type="submit">Votar</button>
-                            </form>
-
-                            <form method="POST" style="display:inline;">
-                                <input type="hidden" name="eliminar_id" value="<?php echo $fila['id']; ?>">
-                                <button type="submit">Eliminar</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-
-            <?php else: ?>
+                ?>
                 <tr>
-                    <td colspan="4">No hay votaciones creadas todavía.</td>
+                    <td><?php echo htmlspecialchars($opcion['opcion']); ?></td>
+                    <td><?php echo $opcion['votos']; ?></td>
+                    <td><?php echo $porcentaje; ?></td>
+                    <td>
+                        <form method="post" style="margin:0">
+                            <button name="eliminar" value="<?php echo $opcion['id']; ?>">❌</button>
+                        </form>
+                    </td>
                 </tr>
-            <?php endif; ?>
-        </tbody>
-    </table>
+            <?php endforeach; ?>
+        </table>
+
+        <h3>➕ Nueva opción</h3>
+        <form method="post">
+            <input name="texto" placeholder="Nueva opción..." required>
+            <button>Agregar opción</button>
+        </form>
+
     </main>
 </body>
-
 </html>

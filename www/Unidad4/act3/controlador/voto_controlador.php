@@ -11,23 +11,29 @@ class VoteController
 
     public function ejecutar()
     {
+        // 1. GESTIÓN DE PETICIONES (POST)
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
-            if (isset($_POST['nueva_opcion']) && !empty($_POST['texto_opcion'])) {
-                $this->model->agregarOpcion($_POST['texto_opcion']);
+            // CORRECCIÓN: Ahora buscamos 'voto' (el radio button de tu vista)
+            if (isset($_POST['voto'])) {
+                $this->model->votar($_POST['voto']);
             }
 
-            if (isset($_POST['votar_id'])) {
-                $this->model->votar($_POST['votar_id']);
+            // CORRECCIÓN: Ahora buscamos 'eliminar' (el botón rojo de tu vista)
+            if (isset($_POST['eliminar'])) {
+                $this->model->eliminar($_POST['eliminar']);
             }
 
-            if (isset($_POST['eliminar_id'])) {
-                $this->model->eliminar($_POST['eliminar_id']);
+            // CORRECCIÓN: Ahora buscamos 'texto' (el input de agregar de tu vista)
+            if (isset($_POST['texto']) && !empty($_POST['texto'])) {
+                $this->model->agregarOpcion($_POST['texto']);
             }
         }
 
+        // 2. Obtener datos
         $listaOpciones = $this->model->obtenerOpciones();
 
+        // 3. Calcular total
         $totalVotos = 0;
         if ($listaOpciones) {
             foreach ($listaOpciones as $opcion) {
@@ -35,6 +41,7 @@ class VoteController
             }
         }
 
+        // 4. Devolver datos
         return [
             'opciones' => $listaOpciones,
             'total'    => $totalVotos
