@@ -1,0 +1,34 @@
+:root {
+    --bajo: #fddede;
+    --medio: #fff7d6;
+    --alto: #def7e5;
+}
+
+main {
+    max-width: 800px;
+    margin: 2rem auto;
+}
+
+.table-categorias td,
+.table-categorias th {
+    text-align: center;
+}
+
+.bajo {
+    background-color: var(--bajo);
+}
+
+.medio {
+    background-color: var(--medio);
+}
+
+.alto {
+    background-color: var(--alto);
+}
+
+.resumen {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}

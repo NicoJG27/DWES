@@ -1,0 +1,26 @@
+.estado {
+    padding: 1rem;
+    border-radius: 6px;
+}
+
+.estado.info {
+    background: #e8f1ff;
+    color: #0b3d91;
+}
+
+.estado.warning {
+    background: #fff4e5;
+    color: #8a4b11;
+}
+
+.estado.success {
+    background: #e9f9ee;
+    color: #1f6b34;
+}
+
+.panel-intentos {
+    margin-top: 1.5rem;
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}

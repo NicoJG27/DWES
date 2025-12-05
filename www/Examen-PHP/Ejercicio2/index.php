@@ -1,44 +1,57 @@
 <?php
-$num = random_int(1, 10);
-$contador = 0;
+session_start();
+require_once __DIR__ . '/funciones.php';
 
-if (!empty($_POST['numero'])) {
-    echo $num;
-} else {
-    echo 'No se ha especificado el número';
-};
+iniciarPartida();
 
-if ($_POST ['numero'] < 0 || $_POST ['numero'] > 10) {
-    echo'El número debe estar entre 0 y 10';
-};
+$mensaje = 'Introduce un número para comenzar la partida.';
+$tipo = 'info';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $accion = $_POST['accion'] ?? 'jugar';
 
-if ($_POST ['numero'] == $num) {
-    echo 'Has adivinado el número';
-    $contador ++;
-    echo 'En intentos:' . $contador ;
-}else {
-    echo 'No lo has adivinado';
+    if ($accion === 'reiniciar') {
+        reiniciarPartida();
+        $mensaje = 'Partida reiniciada. El contador vuelve a cero.';
+        $tipo = 'info';
+    } else {
+        $resultado = procesarIntento($_POST['numero'] ?? null);
+        $mensaje = $resultado['mensaje'];
+        $tipo = $resultado['tipo'];
+    }
 }
-   
+
+$intentos = $_SESSION['intentos'] ?? 0;
 ?>
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../pico.min.css">
-    <title>Document</title>
+    <link rel="stylesheet" href="estilos.css">
+    <title>Ejercicio 2 - Número secreto</title>
 </head>
 
 <body>
     <main>
-        <h1>Número secreto: Elige un número entre 1 y 10</h1>
+        <h1>Número secreto (1-10)</h1>
+
+        <p class="estado <?php echo $tipo; ?>"><?php echo $mensaje; ?></p>
+
         <form method="post" action="index.php">
-            <input type="number" name="numero" min="1" max="99">
-            <input type="submit">
+            <label for="numero">Introduce un número del 1 al 10</label>
+            <input type="number" name="numero" id="numero" min="1" max="10" required>
+            <button type="submit" name="accion" value="jugar">Intentar</button>
+            <button type="submit" name="accion" value="reiniciar" class="secondary">Reiniciar partida</button>
         </form>
+
+        <section class="panel-intentos">
+            <div>
+                <strong>Intentos válidos:</strong> <?php echo $intentos; ?>
+            </div>
+        </section>
     </main>
 </body>
 

@@ -1,0 +1,15 @@
+.stock-bajo {
+    background-color: #ffe9e9;
+}
+
+.resumen {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.resumen span {
+    font-weight: bold;
+}
