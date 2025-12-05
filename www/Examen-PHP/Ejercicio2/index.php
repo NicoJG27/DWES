@@ -1,45 +1,56 @@
 <?php
-$num = random_int(1, 10);
-$contador = 0;
+session_start();
 
-if (!empty($_POST['numero'])) {
-    echo $num;
-} else {
-    echo 'No se ha especificado el número';
-};
-
-if ($_POST ['numero'] < 0 || $_POST ['numero'] > 10) {
-    echo'El número debe estar entre 0 y 10';
-};
-
-
-if ($_POST ['numero'] == $num) {
-    echo 'Has adivinado el número';
-    $contador ++;
-    echo 'En intentos:' . $contador ;
-}else {
-    echo 'No lo has adivinado';
+if (!isset($_SESSION["secreto"])) {
+    $_SESSION["secreto"] = rand(1, 10);
+    $_SESSION["intentos"] = 0;
 }
-   
+
+$mensaje = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
+    $num = $_POST["numero"];
+
+    if ($num < 1 || $num > 10) {
+        $mensaje = "El número debe estar entre 1 y 10.";
+    } else {
+
+        $_SESSION["intentos"]++;
+
+        if ($num == $_SESSION["secreto"]) {
+            $mensaje = "¡Correcto! Has necesitado " . $_SESSION["intentos"] . " intentos.";
+            session_unset();
+        } elseif ($num < $_SESSION["secreto"]) {
+            $mensaje = "El número secreto es MAYOR.";
+        } else {
+            $mensaje = "El número secreto es MENOR.";
+        }
+    }
+}
 ?>
+
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../pico.min.css">
-    <title>Document</title>
+    <title>Número Secreto</title>
 </head>
 
 <body>
-    <main>
-        <h1>Número secreto: Elige un número entre 1 y 10</h1>
-        <form method="post" action="index.php">
-            <input type="number" name="numero" min="1" max="99">
-            <input type="submit">
-        </form>
-    </main>
+
+    <h2>Adivina el número (1-10)</h2>
+
+    <form method="POST">
+        <label>Introduce un número:</label>
+        <input type="number" name="numero" min="1" max="10" required>
+
+        <button type="submit">Probar</button>
+    </form>
+
+    <p><strong><?= $mensaje ?></strong></p>
+
 </body>
 
 </html>
